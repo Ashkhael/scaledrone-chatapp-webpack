@@ -3,10 +3,32 @@ import "./images/favicon.png";
 import "emoji-picker-element";
 import getName from "./getName";
 import getRandomColor from "./getColor";
+import toggle from "./toggle";
+import createMemberElement from "./memberElement";
 
 const CHANNEL_ID = "wU0rP95TrerGgN3z";
 let members = [];
 let me;
+
+const DOM = {
+  me: document.querySelector(".me"),
+  membersCount: document.querySelector(".members-count"),
+  membersList: document.querySelector(".members-list"),
+  messages: document.querySelector(".messages"),
+  input: document.querySelector(".form-input"),
+  form: document.querySelector(".message-form"),
+  emojiButton: document.querySelector(".emoji-button"),
+  tooltip: document.querySelector(".tooltip"),
+};
+
+DOM.form.addEventListener("submit", sendMessage);
+DOM.emojiButton.addEventListener("click", toggle);
+document
+  .querySelector("emoji-picker")
+  .addEventListener("emoji-click", (event) => {
+    DOM.input.value += event.detail.emoji.unicode;
+    DOM.input.focus;
+  });
 
 const drone = new ScaleDrone(CHANNEL_ID, {
   data: {
@@ -63,31 +85,6 @@ drone.on("error", (error) => {
   console.error(error);
 });
 
-const DOM = {
-  me: document.querySelector(".me"),
-  membersCount: document.querySelector(".members-count"),
-  membersList: document.querySelector(".members-list"),
-  messages: document.querySelector(".messages"),
-  input: document.querySelector(".form-input"),
-  form: document.querySelector(".message-form"),
-  emojiButton: document.querySelector(".emoji-button"),
-  tooltip: document.querySelector(".tooltip"),
-};
-
-function toggle() {
-  DOM.tooltip.classList.toggle("shown");
-}
-
-document
-  .querySelector("emoji-picker")
-  .addEventListener("emoji-click", (event) => {
-    DOM.input.value += event.detail.emoji.unicode;
-    DOM.input.focus;
-  });
-
-DOM.form.addEventListener("submit", sendMessage);
-DOM.emojiButton.addEventListener("click", toggle);
-
 function sendMessage() {
   const value = DOM.input.value;
   if (value === "") {
@@ -100,16 +97,13 @@ function sendMessage() {
   });
 }
 
-function createMemberElement(member) {
-  const { name, color } = member.clientData;
-  const el = document.createElement("div");
-  el.appendChild(document.createTextNode(name));
-  el.className = "member";
-  el.style.color = color;
-  return el;
-}
-
 function updateMembers() {
+  const DOM = {
+    me: document.querySelector(".me"),
+    membersCount: document.querySelector(".members-count"),
+    membersList: document.querySelector(".members-list"),
+  };
+
   DOM.me.innerHTML = "";
   DOM.me.appendChild(createMemberElement(me));
   DOM.membersList.innerHTML = "";
